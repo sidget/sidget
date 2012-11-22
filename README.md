@@ -1,0 +1,4 @@
+sidget
+======
+
+Simple jQuery Widget
