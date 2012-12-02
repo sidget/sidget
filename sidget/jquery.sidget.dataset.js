@@ -341,14 +341,14 @@ if(!console.dir) { console.log("debug message2"); console.dir = console.debug; }
 		$.sidget.DS.prototype.addlink = function (selector,colId) {
 			console.log("Add Link Param",selector,colId);
 			var t = this; 
-			
+			// Multi Record Component 일경우. Grid , Table 등.
 			if(1==2) {//selector instanceof $.sidget.grid) {
 				t._gridLinkMap[selector] = {};
 				console.log("GRID COL ARR : " ,selector.getcolumns(),t._columnsArr);
-				var gCols = selector.getcolumns();
-				for(var gCol in gCols) {
-					var gLink_id = gCols[gCol].link_id;
-					console.log("GRID COL LINK " , gCols[gCol].link_id ,t._columnsArr[gLink_id]);
+				var _columns = selector.getcolumns();
+				for(var _col in _columns) {
+					var gLink_id = _columns[_col].link_id;
+					console.log("GRID COL LINK " , _columns[_col].link_id ,t._columnsArr[gLink_id]);
 					//0~INTINITE
 					if(typeof(t._columnsArr[gLink_id]) === "number") {
 						t._gridLinkMap[selector.id][gLink_id] = selector;
@@ -358,22 +358,27 @@ if(!console.dir) { console.log("debug message2"); console.dir = console.debug; }
 				console.log("ADD LINK MAP : " ,t._gridLinkMap[selector]);
 			}
 			else {
+				// Single Component Mapping 일경우에는 해당 ID가 없으면 무시.
 				var id = t._getid(colId);
+				
 				if(t._isnull(id)) {
 					prcsError("Unknown Column AddLinkElement");
 					return ;
 				}
 				
+				// 각 ColumnID 마다 Link Array를 갖는다.
 				if(!t._singleLinkMap[id])
 				{
 					t._singleLinkMap[id] = [];
 				}
 				
+				// Ignore Same Selector 
 				if($.inArray(selector,t._singleLinkMap[id]) < 0) {
 					t._singleLinkMap[id].push(selector);
 					if(t._curRow >= 0) {
-						console.log(selector.context.tagName,typeof(selector.context))
+						console.log(selector.context.tagName,typeof(selector.context));
 						
+						// jQeury .val()로 값을 가지고 올 수 있는 대상 Element Type
 						if($.sidget.valTypeMap[selector.context.tagName]) {
 							selector.val(t._orgData[t._curRow][id]);
 						}
