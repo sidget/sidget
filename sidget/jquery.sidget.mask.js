@@ -7,7 +7,7 @@
 /*
  	Masked Input plugin for Sidget
  	Modify 2012 SengWook Jung
-	Licensed under the MIT license (http://digitalbush.com/projects/masked-input-plugin/#license) 
+	Licensed under the MIT license 
 	Version: 1.0
  */
 (function($) {
@@ -21,6 +21,7 @@
 			'a': "[A-Za-z]",
 			'*': "[A-Za-z0-9]"
 		},
+		defclass:"_smask",
 		dataName:"rawMaskFn"
 	};
 
@@ -42,6 +43,7 @@
 					}
 				});
 			} else {
+				
 				if (this[0].setSelectionRange) {
 					begin = this[0].selectionStart;
 					end = this[0].selectionEnd;
@@ -65,6 +67,7 @@
 			}, settings);
 			
 			var defs = $.mask.definitions;
+			var defClass = $.mask.defclass;
 			var tests = [];
 			var partialPosition = mask.length;
 			var firstNonMaskPos = null;
@@ -88,7 +91,7 @@
 				var buffer = $.map(mask.split(""), function(c, i) { if (c != '?') return defs[c] ? settings.placeholder : c });
 				var focusText = valWrap();
 				/** DEFINE Mask Class ***/
-				input.addClass("smask");
+				input.addClass(defClass);
 				/** IF CHANGE OCCUR REMASKING ***/
 				input.change(remask);
 				
@@ -212,6 +215,25 @@
 							buffer[i] = settings.placeholder;
 					}
 				};
+				
+				function rebuildBuffer(value) {
+					var arrVal = value.split("");
+					buffer = $.map(mask.split(""), function(c, i) {
+						if (c != '?') {
+							if(defs[c]) {
+								if(i >= arrVal.length) {
+									return settings.placeholder;
+								}
+								else {
+									return arrVal[i];
+								}
+							}	 
+							else {
+								return c; 
+							}
+						}
+					});
+				};
 
 				function writeBuffer() { return valWrap(buffer.join('')).val(); };
 
@@ -262,7 +284,7 @@
 							input
 								.unbind(".mask")
 								.removeData($.mask.dataName)
-								.removeClass("smask");
+								.removeClass(defClass);
 						})
 						.bind("focus.mask", function() {
 							input.caret(0);
@@ -285,8 +307,7 @@
 						.bind("keydown.mask", keydownEvent)
 						.bind("keypress.mask", keypressEvent)
 						.bind(pasteEventName, function() {
-							console.log("pasteEventName",arguments);
-							setTimeout(function() { var pos = input.caret(); checkVal(true); input.caret(pos.begin); }, 0);
+							setTimeout(function() { rebuildBuffer(input.val());}, 0);
 						});
 					}
 				}
